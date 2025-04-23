@@ -1,52 +1,17 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SearchBar: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!searchTerm.trim()) return;
     
-    setIsLoading(true);
-    
-    try {
-      const response = await axios.post(
-        'https://vit-tm-task.api.trademarkia.app/api/v3/us', 
-        {
-          input_query: searchTerm,
-          input_query_type: "",
-          sort_by: "default",
-          status: [],
-          exact_match: false,
-          date_query: false,
-          owners: [],
-          attorneys: [],
-          law_firms: [],
-          mark_description_description: [],
-          classes: [],
-          page: 1,
-          rows: 10,
-          sort_order: "desc",
-          states: [],
-          counties: []
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        }
-      );
-      
-      console.log('API Response:', response.data);
-    } catch (error) {
-      console.error('Error fetching trademark data:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Just navigate to the trademarks page with the search term
+    navigate(`/trademarks/${encodeURIComponent(searchTerm)}`);
   };
 
   return (
@@ -61,10 +26,9 @@ const SearchBar: React.FC = () => {
         />
         <button 
           type="submit"
-          disabled={isLoading}
-          className={`search-button px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          className="search-button px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
         >
-          {isLoading ? 'Searching...' : 'Search'}
+          Search
         </button>
       </div>
     </form>

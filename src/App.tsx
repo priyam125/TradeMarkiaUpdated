@@ -1,16 +1,22 @@
-import Header from "./components/Header";
-import Hero from "./components/Hero";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import SearchBar from "./components/SearchBar";
+import Header from "./components/Header";
+import Home from "./pages/Home";
+import Trademarks from "./pages/Trademarks";
 
 function App() {
-
   return (
-    <Layout>
-      <Header />
-      <Hero />
-      <SearchBar />
-    </Layout>
+    <Router>
+      <Layout>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/trademarks/:searchTerm" element={<Trademarks />} />
+          <Route path="/trademarks" element={<Trademarks />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
