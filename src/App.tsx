@@ -12,8 +12,8 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/trademarks/:searchTerm" element={<Trademarks />} />
-          <Route path="/trademarks" element={<Trademarks />} />
+          <Route path="/search/trademarks" element={<Trademarks />} />
+          <Route path="/trademarks/:searchTerm" element={<Trademarks />} /> {/* Keep for backward compatibility */}
         </Routes>
       </Layout>
     </Router>

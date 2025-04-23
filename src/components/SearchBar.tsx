@@ -11,7 +11,7 @@ const SearchBar: React.FC = () => {
     if (!searchTerm.trim()) return;
     
     // Just navigate to the trademarks page with the search term
-    navigate(`/trademarks/${encodeURIComponent(searchTerm)}`);
+    navigate(`/search/trademarks?query=${encodeURIComponent(searchTerm)}`);
   };
 
   return (

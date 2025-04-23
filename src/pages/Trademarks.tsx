@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 type TrademarkData = {
@@ -49,69 +49,80 @@ type TrademarkData = {
 };
 
 const Trademarks: React.FC = () => {
-  const { searchTerm } = useParams<{ searchTerm: string }>();
-  const navigate = useNavigate();
-
-  const [trademarkResults, setTrademarkResults] = useState<TrademarkData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const hasRunRef = useRef(false);
-
-  useEffect(() => {
-    if (hasRunRef.current) return;
-    hasRunRef.current = true;
-
-    // If there's no search term, redirect to the home page
-    if (!searchTerm) {
-      navigate("/");
-      return;
-    }
-
-    const fetchTrademarks = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.post(
-          "https://vit-tm-task.api.trademarkia.app/api/v3/us",
-          {
-            input_query: searchTerm,
-            input_query_type: "",
-            sort_by: "default",
-            status: [],
-            exact_match: false,
-            date_query: false,
-            owners: [],
-            attorneys: [],
-            law_firms: [],
-            mark_description_description: [],
-            classes: [],
-            page: 1,
-            rows: 10,
-            sort_order: "desc",
-            states: [],
-            counties: [],
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          }
-        );
-
-        setTrademarkResults(response.data.body.hits.hits || []);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching trademark data:", err);
-        setError("Failed to fetch trademark data. Please try again.");
-        setTrademarkResults([]);
-      } finally {
-        setLoading(false);
+    const { searchTerm: urlSearchTerm } = useParams<{ searchTerm: string }>();
+    const location = useLocation();
+    const navigate = useNavigate();
+    
+    // Get search term from either URL parameter or query parameter
+    const queryParams = new URLSearchParams(location.search);
+    const querySearchTerm = queryParams.get('query');
+    const searchTerm = querySearchTerm || urlSearchTerm;
+  
+    const [trademarkResults, setTrademarkResults] = useState<TrademarkData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+  
+    const hasRunRef = useRef(false);
+  
+    useEffect(() => {
+      // Reset the reference when search term changes
+      hasRunRef.current = false;
+    }, [searchTerm]);
+  
+    useEffect(() => {
+      if (hasRunRef.current) return;
+      hasRunRef.current = true;
+  
+      // If there's no search term, redirect to the home page
+      if (!searchTerm) {
+        navigate("/");
+        return;
       }
-    };
-
-    fetchTrademarks();
-  }, [searchTerm, navigate]);
+  
+      const fetchTrademarks = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.post(
+            "https://vit-tm-task.api.trademarkia.app/api/v3/us",
+            {
+              input_query: searchTerm,
+              input_query_type: "",
+              sort_by: "default",
+              status: [],
+              exact_match: false,
+              date_query: false,
+              owners: [],
+              attorneys: [],
+              law_firms: [],
+              mark_description_description: [],
+              classes: [],
+              page: 1,
+              rows: 10,
+              sort_order: "desc",
+              states: [],
+              counties: [],
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
+  
+          setTrademarkResults(response.data.body.hits.hits || []);
+          setError(null);
+        } catch (err) {
+          console.error("Error fetching trademark data:", err);
+          setError("Failed to fetch trademark data. Please try again.");
+          setTrademarkResults([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchTrademarks();
+    }, [searchTerm, navigate]);
 
   // Helper function to format dates from timestamps
   const formatDate = (timestamp: number | undefined) => {
